@@ -1,14 +1,16 @@
 "use client";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 
-export default function Home() {
+export default function Login() {
   const router = useRouter();
 
   const handleNavigation = (href: string) => {
     router.push(href);
   };
+
   return (
     <div className="bg-gray-200 h-screen flex flex-col justify-center items-center">
       <main className="flex flex-col items-center justify-center flex-1 px-4 text-center gap-8">
@@ -20,7 +22,19 @@ export default function Home() {
           height={38}
           priority
         />
-        <Button onClick={() => handleNavigation("/login")}>
+        <div>
+          <Input
+            type="text"
+            placeholder="Username"
+            className="mb-4 p-2 border border-gray-300 rounded-md w-full"
+          />
+          <Input
+            type="password"
+            placeholder="Password"
+            className="mb-4 p-2 border border-gray-300 rounded-md w-full"
+          />
+        </div>
+        <Button onClick={() => handleNavigation("/top")}>
           <Image
             className=""
             src="/vercel.svg"
@@ -28,7 +42,7 @@ export default function Home() {
             width={20}
             height={20}
           />
-          GO
+          LOG IN
         </Button>
       </main>
     </div>
