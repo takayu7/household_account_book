@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -18,7 +17,7 @@ import { RxReset } from "react-icons/rx";
 
 import { IncomeType } from "@/lib/type";
 
-import { dateToString, stringToDate } from "@/lib/utils";
+import { dateToString, stringToDate, generateRandomId } from "@/lib/utils";
 
 const categorySample = [
   { key: "food", value: "food", label: "Food" },
@@ -31,13 +30,27 @@ const categorySample = [
 ];
 
 const defaultIncomeData: IncomeType = {
+  id: generateRandomId(new Date()),
   date: new Date(),
   detail: [{ category: "", cost: 0 }],
   memo: "",
 };
 
-export function InputForm() {
+interface InputFormProps {
+  editData?: IncomeType;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function InputForm({ editData, onOpenChange }: InputFormProps) {
   const [incomeData, setIncomeData] = useState<IncomeType>(defaultIncomeData);
+
+  useEffect(() => {
+    if (editData && editData.detail) {
+      setIncomeData(editData);
+    } else {
+      setIncomeData(defaultIncomeData);
+    }
+  }, [editData]);
 
   const today = new Date();
   const formattedDate = dateToString(today);
@@ -58,11 +71,17 @@ export function InputForm() {
     });
   };
 
+  const handleSubmit = () => {
+    if (onOpenChange) {
+      onOpenChange(false);
+    }
+    console.log("Saving data:", incomeData);
+  }
+
   return (
     <Card className="flex flex-col gap-2 w-full">
       <CardHeader className="items-center pb-0">
         <CardTitle>Expense Input</CardTitle>
-        <CardDescription>{formattedDate}</CardDescription>
       </CardHeader>
 
       <CardContent className="flex-1 space-y-4">
@@ -70,7 +89,9 @@ export function InputForm() {
           type="date"
           placeholder="Username"
           className="p-2 border border-gray-300 rounded-md w-full"
-          defaultValue={formattedDate}
+          value={
+            incomeData.date ? dateToString(incomeData.date) : formattedDate
+          }
           onChange={(e) =>
             setIncomeData({ ...incomeData, date: stringToDate(e.target.value) })
           }
@@ -128,7 +149,7 @@ export function InputForm() {
           ))}
         </div>
         {incomeData.detail.length < 5 && (
-          <Button onClick={() => handeDetailPuls()}>
+          <Button variant="outline" onClick={() => handeDetailPuls()}>
             <FaPlus className="w-6 h-6" />
           </Button>
         )}
@@ -137,7 +158,13 @@ export function InputForm() {
           placeholder="memo"
           className="p-2 border h-20 border-gray-300 rounded-md w-full"
         />
-        <Button variant="secondary" onClick={() => console.log("登録")}>Add Data</Button>
+        <Button 
+          type="button"
+          variant="secondary" 
+          onClick={handleSubmit}
+        >
+          Add Data
+        </Button>
       </CardContent>
     </Card>
   );
