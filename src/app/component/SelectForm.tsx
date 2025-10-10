@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/select"
 
 interface PulldownPropsOption {
-  key: string;
   value: string;
   label: string;
 }
@@ -34,8 +33,8 @@ const SelectForm: React.FC<PulldownProps> = ({
         <SelectValue placeholder={placeholder || ''} />
       </SelectTrigger>
       <SelectContent>
-        {options.map((option) => (
-          <SelectItem key={option.key} value={option.value}>
+        {options.map((option,index) => (
+          <SelectItem key={index} value={option.value}>
             {option.label}
           </SelectItem>
         ))}

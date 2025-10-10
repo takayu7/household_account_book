@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -23,12 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className="flex justify-center min-h-screen bg-[#fff]"
-      >
+      <body className="flex justify-center min-h-screen bg-[#fff]">
         <div className="flex flex-col w-full max-w-[470px] min-h-screen bg-red-500">
           {children}
         </div>
+        <Toaster />
       </body>
     </html>
   );

@@ -1,12 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import SelectForm from "@/app/component/SelectForm";
@@ -18,16 +13,6 @@ import { RxReset } from "react-icons/rx";
 import { IncomeType } from "@/lib/type";
 
 import { dateToString, stringToDate, generateRandomId } from "@/lib/utils";
-
-const categorySample = [
-  { key: "food", value: "food", label: "Food" },
-  { key: "clothes", value: "clothes", label: "Clothes" },
-  { key: "transportation", value: "transportation", label: "Transportation" },
-  { key: "education", value: "education", label: "Education" },
-  { key: "entertainment", value: "entertainment", label: "Entertainment" },
-  { key: "health", value: "health", label: "Health" },
-  { key: "other", value: "other", label: "Other" },
-];
 
 const defaultIncomeData: IncomeType = {
   id: generateRandomId(new Date()),
@@ -43,6 +28,25 @@ interface InputFormProps {
 
 export function InputForm({ editData, onOpenChange }: InputFormProps) {
   const [incomeData, setIncomeData] = useState<IncomeType>(defaultIncomeData);
+  const [categories, setCategories] = useState([{ value: "0", label: "0" }]);
+
+  useEffect(() => {
+    fetchCategory();
+  }, []);
+
+  async function fetchCategory() {
+    const data = await fetch("/api/category");
+    const category = await data.json();
+    const changeData = category.map(
+      (item: { value: number; label: string }) => ({
+        ...item,
+        value: String(item.value),
+      })
+    );
+
+    setCategories(changeData);
+    console.log(category);
+  }
 
   useEffect(() => {
     if (editData && editData.detail) {
@@ -76,7 +80,7 @@ export function InputForm({ editData, onOpenChange }: InputFormProps) {
       onOpenChange(false);
     }
     console.log("Saving data:", incomeData);
-  }
+  };
 
   return (
     <Card className="flex flex-col gap-2 w-full">
@@ -103,7 +107,7 @@ export function InputForm({ editData, onOpenChange }: InputFormProps) {
               className="flex gap-2 border-2 border-gray-300 rounded-md w-full p-2"
             >
               <SelectForm
-                options={categorySample}
+                options={categories}
                 selected={detail.category}
                 onValueChange={(value: string) => {
                   const newDetail = { ...detail, category: value };
@@ -158,11 +162,7 @@ export function InputForm({ editData, onOpenChange }: InputFormProps) {
           placeholder="memo"
           className="p-2 border h-20 border-gray-300 rounded-md w-full"
         />
-        <Button 
-          type="button"
-          variant="secondary" 
-          onClick={handleSubmit}
-        >
+        <Button type="button" variant="secondary" onClick={handleSubmit}>
           Add Data
         </Button>
       </CardContent>
