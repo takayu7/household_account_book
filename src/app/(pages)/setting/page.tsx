@@ -1,14 +1,11 @@
 "use client";
 import Image from "next/image";
 import { SettingForm } from "@/app/component/SettingForm";
-import { UserType } from "@/lib/type";
+import { useUserStore } from '@/store/userStore'
 
 export default function Setting() {
 
-  const sampleUserData:UserType ={
-    name: "test",
-    password: "123"
-  }
+  const { user } = useUserStore();
 
   return (
     <div className="">
@@ -21,7 +18,7 @@ export default function Setting() {
           height={38}
           priority
         />
-        <SettingForm loginData={sampleUserData}/>
+        <SettingForm loginData={user} />
       </div>
     </div>
   );

@@ -18,6 +18,13 @@ export type TableType = {
 };
 
 export type UserType = {
+  id?: string | undefined;
+  name: string;
+  password: string;
+};
+
+export type LoginUserType = {
+  id?: string | undefined;
   name: string;
   password: string;
 };

@@ -10,6 +10,8 @@ import { IoMdEyeOff } from "react-icons/io";
 
 import { toast } from "sonner";
 
+import { useUserStore } from '@/store/userStore'
+
 const defaultUserData: UserType = {
   name: "",
   password: "",
@@ -17,10 +19,11 @@ const defaultUserData: UserType = {
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState();
   const [userData, setUserData] = useState<UserType>(defaultUserData);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+
+  const { setUser } = useUserStore()
 
   async function fetchUserDatas(name: string, password: string) {
     setLoading(true);
@@ -35,9 +38,8 @@ export default function Login() {
       const result = await data.json();
       console.log(result);
 
-      if (result) {
-        setUser(result);
-        console.log("Login successful：", user);
+      if (result && !(Array.isArray(result) && result.length === 0)) {
+        setUser(result[0] as UserType);
         router.push("/top");
       } else {
         throw new Error("ログインに失敗しました");
@@ -99,7 +101,7 @@ export default function Login() {
               </span>
             </Button>
           </div>
-          <Button onClick={handleLogin} disabled={loading}>
+          <Button onClick={handleLogin} disabled={loading} className="mb-3">
             <Image
               className=""
               src="/vercel.svg"
@@ -108,6 +110,10 @@ export default function Login() {
               height={20}
             />
             {loading ? "Loading..." : "LOG IN"}
+          </Button>
+                    <Button onClick={()=>router.push("/newAccount")} variant="ghost" disabled={loading}>
+
+            NEW ACCOUNT
           </Button>
         </div>
       </main>

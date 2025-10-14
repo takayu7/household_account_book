@@ -10,18 +10,25 @@ import { UserType } from "@/lib/type";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
 
+import { useUserStore } from '@/store/userStore'
+import { toast } from "sonner";
+
 const defaultUserData: UserType = {
+  id: "",
   name: "",
   password: "",
 };
 
 interface InputFormProps {
-  loginData?: UserType;
+  loginData?: UserType | null;
 }
 
 export function SettingForm({ loginData }: InputFormProps) {
   const [userData, setUserData] = useState<UserType>(defaultUserData);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+
+    const { setUser } = useUserStore();
 
   useEffect(() => {
     if (loginData) {
@@ -31,8 +38,44 @@ export function SettingForm({ loginData }: InputFormProps) {
     }
   }, [loginData]);
 
+  console.log(userData)
+
+    async function updateUserData(id:string, name: string, password: string) {
+      setLoading(true);
+      try {
+        const data = await fetch(`/api/setting`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id, name, password }),
+        });
+        const result = await data.json();
+  
+        if (result && !(Array.isArray(result) && result.length === 0)) {
+          const newData = result[0] as UserType
+          setUser(newData);
+          setUserData(newData);
+          toast.success("User settings update successful");
+
+        } else {
+          throw new Error("ログインに失敗しました");
+        }
+      } catch (error) {
+        console.log("Login failed:", error);
+        toast.error("ログインに失敗しました");
+      } finally {
+        setLoading(false);
+      }
+    }
+
   const handleSubmit = () => {
     console.log("Saving data:", userData);
+    if(userData.id !== undefined && loginData?.name !== userData.name || loginData?.password !== userData.password){
+      updateUserData(userData.id ?? "", userData.name, userData.password);
+    } else {
+      alert("No changes to save.");
+    }
   };
 
   return (
@@ -75,7 +118,7 @@ export function SettingForm({ loginData }: InputFormProps) {
           </Button>
           </div>
         </div>
-        <Button onClick={handleSubmit}>UPDATE</Button>
+        <Button onClick={handleSubmit}> {loading ? "Loading..." : "UPDATE"}</Button>
       </CardContent>
     </Card>
   );
