@@ -25,7 +25,6 @@ export function SettingForm({ loginData }: InputFormProps) {
 
   const {
     register,
-    watch,
     setValue,
     handleSubmit: rhfHandleSubmit,
     formState: { errors, isValid },
@@ -45,18 +44,20 @@ export function SettingForm({ loginData }: InputFormProps) {
     },
     password: {
       required: "パスワードは必須です",
-      maxLength: { value: 10, message: "20文字以内にしてください" },
+      maxLength: { value: 10, message: "10文字以内にしてください" },
     },
   };
-  const isAllFilled = watch("name") !== "" && watch("password") !== "";
 
+  //更新処理
   async function updateUserData(id: string, name: string, password: string) {
     setLoading(true);
+    //json文字列形式に変換
     const requestBody = JSON.stringify({ id, name, password });
     try {
       const data = await fetch(`/api/setting`, {
         method: "PUT",
         headers: {
+          //"Content-Type": "application/json" は「送るデータは JSON です」という意味
           "Content-Type": "application/json",
         },
         body: requestBody,
@@ -68,13 +69,13 @@ export function SettingForm({ loginData }: InputFormProps) {
         setUser(newData);
         setValue("name", newData.name);
         setValue("password", newData.password);
-        toast.success("User settings update successful");
+        toast.success("アカウントの更新が完了しました");
       } else {
-        throw new Error("ログインに失敗しました");
+        throw new Error("アカウント編集に失敗しました");
       }
     } catch (error) {
-      console.log("Login failed:", error);
-      toast.error("ログインに失敗しました");
+      console.log("Account creation failed:", error);
+      toast.error("既にアカウント名が存在しています");
     } finally {
       setLoading(false);
     }
@@ -118,7 +119,7 @@ export function SettingForm({ loginData }: InputFormProps) {
               {...register("password", validationRules.password)}
               type={showPassword ? "text" : "password"}
               placeholder="Password"
-              className="mb-5 p-2 border border-gray-300 rounded-md w-full"
+              className="p-2 border border-gray-300 rounded-md w-full"
             />
             {errors.password && (
               <p className="absolute -bottom-4 text-xs text-red-600">
@@ -141,7 +142,7 @@ export function SettingForm({ loginData }: InputFormProps) {
               </span>
             </Button>
           </div>
-          <Button type="submit" disabled={loading || !isValid || !isAllFilled}>
+          <Button type="submit" disabled={loading || !isValid }>
             {" "}
             {loading ? "Loading..." : "UPDATE"}
           </Button>

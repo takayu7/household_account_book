@@ -6,7 +6,7 @@ export async function POST(request: Request) {
     const { name, password } = await request.json();
     const user = await fetchLogin(name, password);
     return NextResponse.json(user);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: "DB error" }, { status: 500 });
   }
 }

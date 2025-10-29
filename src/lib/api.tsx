@@ -43,6 +43,11 @@ export async function updateUserData(
   password: string
 ) {
   try {
+    // すでに同じ名前が存在するか確認
+    const exists = await sql`SELECT * FROM users WHERE name = ${name} AND id != ${id}`;
+    if (exists && exists.length > 0) {
+      throw new Error("User already exists");
+    }
     const data =
       await sql`UPDATE users SET name = ${name} , password = ${password} WHERE id = ${id} RETURNING *;`;
     return data;
@@ -55,6 +60,7 @@ export async function updateUserData(
 // ユーザーデータの作成
 export async function createUserData(name: string, password: string) {
   try {
+    // すでに同じ名前が存在するか確認
     const exists = await sql`SELECT * FROM users WHERE name = ${name}`;
     if (exists && exists.length > 0) {
       throw new Error("User already exists");

@@ -40,7 +40,7 @@ export default function Login() {
     },
     password: {
       required: "パスワードは必須です",
-      maxLength: { value: 10, message: "20文字以内にしてください" },
+      maxLength: { value: 10, message: "10文字以内にしてください" },
     },
   };
 

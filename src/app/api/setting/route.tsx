@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createUserData, updateUserData } from "@/lib/api";
 
+//更新
 export async function PUT(request: Request) {
   try {
     const { id, name, password } = await request.json();
