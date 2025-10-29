@@ -4,33 +4,57 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { UserType } from "@/lib/type";
 import { IoMdEye } from "react-icons/io";
 import { IoMdEyeOff } from "react-icons/io";
-
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-const defaultUserData: UserType = {
-  name: "",
-  password: "",
-};
+interface NewAccountType {
+  name: string;
+  password: string;
+}
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [userData, setUserData] = useState<UserType>(defaultUserData);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
+  const {
+    register,
+    handleSubmit: rhfHandleSubmit,
+    formState: { errors, isValid },
+  } = useForm<NewAccountType>({
+    defaultValues: {
+      name: "",
+      password: "",
+    },
+    mode: "onChange",
+  });
+
+  //バリデーションルール
+  const validationRules = {
+    name: {
+      required: "名前は必須です",
+      maxLength: { value: 20, message: "20文字以内にしてください" },
+    },
+    password: {
+      required: "パスワードは必須です",
+      maxLength: { value: 10, message: "20文字以内にしてください" },
+    },
+  };
+
+  //API処理‗登録
   async function createUserDatas(name: string, password: string) {
     setLoading(true);
+    const requestBody = JSON.stringify({ name, password });
     try {
       const data = await fetch(`/api/setting`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ name, password }),
+        body: requestBody,
       });
       const result = await data.json();
       console.log(result);
@@ -54,8 +78,9 @@ export default function Login() {
     }
   }
 
-  const handleSubmit = () => {
-    createUserDatas(userData.name, userData.password);
+  const onSubmit = (data: NewAccountType) => {
+    console.log("Creating account with:", data);
+    createUserDatas(data.name, data.password);
   };
 
   return (
@@ -75,47 +100,59 @@ export default function Login() {
           </CardHeader>
 
           <CardContent className="flex-1 space-y-4  ">
-            <div className="max-w-xs flex-col justify-center items-center mx-auto">
-              <Input
-                type="text"
-                placeholder="Username"
-                value={userData.name}
-                onChange={(e) =>
-                  setUserData({ ...userData, name: e.target.value })
-                }
-                className="mb-4 p-2 border border-gray-300 rounded-md w-full"
-              />
-              <div className="relative mb-4">
-                <Input
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Password"
-                  value={userData.password}
-                  onChange={(e) =>
-                    setUserData({ ...userData, password: e.target.value })
-                  }
-                  className=" p-2 border border-gray-300 rounded-md w-full"
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-1/2 -translate-y-1/2"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <IoMdEyeOff className="h-4 w-4" />
-                  ) : (
-                    <IoMdEye className="h-4 w-4" />
+            <form onSubmit={rhfHandleSubmit(onSubmit)}>
+              <div className="max-w-xs flex-col justify-center items-center mx-auto">
+                <div className="relative">
+                  <Input
+                    {...register("name", validationRules.name)}
+                    type="text"
+                    placeholder="Username"
+                    className=" mb-5 p-2 border border-gray-300 rounded-md w-full"
+                  />
+                  {errors.name && (
+                    <p className="absolute bottom-1 text-xs text-red-600">
+                      {errors.name.message}
+                    </p>
                   )}
-                  <span className="sr-only">
-                    {showPassword ? "Hide password" : "Show password"}
-                  </span>
-                </Button>
+                </div>
+                <div className="relative mb-5">
+                  <Input
+                    {...register("password", validationRules.password)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    className="p-2 border border-gray-300 rounded-md w-full pr-10"
+                  />
+                  {errors.password && (
+                    <p className="absolute -bottom-4 text-xs text-red-600">
+                      {errors.password.message}
+                    </p>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-1/2 -translate-y-1/2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <IoMdEyeOff className="h-4 w-4" />
+                    ) : (
+                      <IoMdEye className="h-4 w-4" />
+                    )}
+                    <span className="sr-only">
+                      {showPassword ? "Hide password" : "Show password"}
+                    </span>
+                  </Button>
+                </div>
               </div>
-            </div>
-            <Button className="max-w-xs" onClick={handleSubmit}>
-              {" "}
-              {loading ? "Loading..." : "SAVE"}
-            </Button>
+              <Button
+                className="max-w-xs"
+                type="submit"
+                disabled={loading || !isValid }
+              >
+                {" "}
+                {loading ? "Loading..." : "SAVE"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
         <Button

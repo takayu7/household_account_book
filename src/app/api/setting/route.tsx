@@ -21,11 +21,18 @@ export async function PUT(request: Request) {
   }
 }
 
+//登録
 export async function POST(request: Request) {
   try {
-    const { name, password } = await request.json();
+    // リクエストボディをデバッグ
+    const rawBody = await request.text();
+
+    if (!rawBody) {
+      throw new Error("Empty request body");
+    }
+
+    const { name, password } = JSON.parse(rawBody);
     const user = await createUserData(name, password);
-    console.log(user);
 
     // テーブル作成が成功した場合（結果が返ってきた場合）
     if (user && user.length > 0) {
